@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Malaria Detection System</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Arial, Helvetica, sans-serif;
+        background: radial-gradient(
+          circle at top left,
+          #8e9dff 0,
+          #667eea 30%,
+          #764ba2 65%,
+          #020617 100%
+        );
+        min-height: 100vh;
+        color: #111827;
+      }
+      .page-shell {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 20px 20px 32px;
+        box-sizing: border-box;
+      }
+      .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        color: #e5e7eb;
+      }
+      .top-title {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .top-title-main {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .top-title-sub {
+        font-size: 13px;
+        color: #cbd5f5;
+      }
+      .top-nav {
+        display: flex;
+        gap: 10px;
+        font-size: 12px;
+      }
+      .top-nav-pill {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        color: #e5e7eb;
+        background: rgba(15, 23, 42, 0.35);
+      }
+      .top-nav-pill span {
+        opacity: 0.75;
+      }
+      .container {
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(18px);
+        border-radius: 16px;
+        box-shadow: 0 22px 45px rgba(15, 23, 42, 0.35);
+        width: 100%;
+        padding: 20px 22px 24px;
+        box-sizing: border-box;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+      }
+      .content-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        gap: 18px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 18px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: #111827;
+      }
+      .header p {
+        margin: 6px 0 10px;
+        color: #6b7280;
+        font-size: 14px;
+      }
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.2);
+      }
+      .status-ok {
+        background-color: #e8f5e9;
+        color: #166534;
+      }
+      .status-error {
+        background-color: #fef2f2;
+        color: #b91c1c;
+      }
+      .upload-section {
+        margin-top: 12px;
+      }
+      .dropzone {
+        border: 1px dashed #cbd5f5;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s ease, background-color 0.2s ease,
+          box-shadow 0.2s ease, transform 0.1s ease;
+        background: linear-gradient(135deg, #f9fafb, #eef2ff);
+      }
+      .dropzone.dragover {
+        border-color: #4f46e5;
+        background-color: #e0e7ff;
+        box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.3),
+          0 10px 20px rgba(15, 23, 42, 0.25);
+        transform: translateY(-1px);
+      }
+      .dropzone input {
+        display: none;
+      }
+      .preview-wrapper {
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .preview-img {
+        width: 82px;
+        height: 82px;
+        border-radius: 10px;
+        object-fit: cover;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+        display: none;
+      }
+      .file-info {
+        font-size: 13px;
+        color: #4b5563;
+      }
+      .primary-btn {
+        margin-top: 18px;
+        width: 100%;
+        border: none;
+        outline: none;
+        padding: 12px 0;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+        transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+      }
+      .primary-btn:disabled {
+        opacity: 0.65;
+        cursor: default;
+        box-shadow: none;
+      }
+      .primary-btn:not(:disabled):hover {
+        box-shadow: 0 10px 22px rgba(79, 70, 229, 0.45);
+        transform: translateY(-1px);
+      }
+      .spinner {
+        border: 3px solid rgba(255, 255, 255, 0.4);
+        border-top: 3px solid #ffffff;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .results {
+        margin-top: 20px;
+        display: none;
+      }
+      .result-card {
+        border-radius: 12px;
+        padding: 14px 16px;
+        display: none;
+        margin-bottom: 10px;
+      }
+      .result-parasitized {
+        background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        border: 1px solid #fecaca;
+      }
+      .result-uninfected {
+        background: linear-gradient(135deg, #ecfdf3, #dcfce7);
+        border: 1px solid #bbf7d0;
+      }
+      .result-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .icon-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+      }
+      .icon-parasitized {
+        background-color: #ef5350;
+        color: #ffffff;
+      }
+      .icon-uninfected {
+        background-color: #43a047;
+        color: #ffffff;
+      }
+      .result-title-parasitized {
+        font-weight: 700;
+        color: #b91c1c;
+      }
+      .result-title-uninfected {
+        font-weight: 700;
+        color: #166534;
+      }
+      .result-subtext {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: #4b5563;
+      }
+      .confidence-text {
+        margin-top: 8px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .disclaimer {
+        margin-top: 6px;
+        font-size: 11px;
+        color: #616161;
+      }
+      .stats-bar {
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f9fafb, #eef2ff);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 12px;
+        border: 1px solid #e5e7eb;
+      }
+      .stat-item {
+        flex: 1 1 30%;
+      }
+      .stat-label {
+        color: #6b7280;
+        font-size: 11px;
+      }
+      .stat-value {
+        font-weight: 600;
+        color: #111827;
+      }
+      .error-message {
+        margin-top: 10px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        background-color: #fef2f2;
+        color: #b91c1c;
+        font-size: 12px;
+        display: none;
+        border: 1px solid #fecaca;
+      }
+      .info-panel {
+        border-radius: 14px;
+        background: linear-gradient(145deg, #f9fafb, #eef2ff);
+        border: 1px solid #e5e7eb;
+        padding: 14px 14px 16px;
+        box-sizing: border-box;
+      }
+      .info-header {
+        font-size: 13px;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 8px;
+      }
+      .tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 6px 8px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-size: 11px;
+        font-weight: 500;
+        background-color: transparent;
+        cursor: pointer;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+      .tab-btn-active {
+        background: #4f46e5;
+        color: #f9fafb;
+        border-color: #4338ca;
+        box-shadow: 0 6px 14px rgba(79, 70, 229, 0.45);
+      }
+      .tab-panel {
+        display: none;
+        font-size: 12px;
+        color: #4b5563;
+      }
+      .tab-panel-active {
+        display: block;
+      }
+      .tab-section-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #111827;
+        margin: 4px 0 2px;
+      }
+      .tab-list {
+        margin: 4px 0 0 14px;
+        padding: 0;
+      }
+      .tab-list li {
+        margin-bottom: 3px;
+      }
+      .pill-metric {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 7px;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        font-size: 11px;
+        margin-right: 4px;
+        margin-top: 4px;
+      }
+      @media (max-width: 640px) {
+        .page-shell {
+          padding: 14px 14px 22px;
+        }
+        .container {
+          margin-top: 6px;
+        }
+        .content-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="top-bar">
+        <div class="top-title">
+          <div class="top-title-main">Malaria Detection Dashboard</div>
+          <div class="top-title-sub">
+            AI-assisted microscopic blood smear screening
+          </div>
+        </div>
+        <div class="top-nav">
+          <div class="top-nav-pill">
+            <span>Real-time inference</span>
+          </div>
+          <div class="top-nav-pill">
+            <span>Custom CNN · MobileNetV2 · EfficientNetB0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="header">
+          <h1>Malaria Detection System</h1>
+          <p>Upload a single-cell smear image to screen for malaria parasites.</p>
+          {% if model_loaded %}
+          <div class="status-badge status-ok">
+            <span>&#10003;</span>
+            <span>Model Loaded</span>
+          </div>
+          {% else %}
+          <div class="status-badge status-error">
+            <span>&#10007;</span>
+            <span>Model Error</span>
+          </div>
+          {% if model_error %}
+          <div style="margin-top: 6px; font-size: 11px; color: #c62828;">
+            {{ model_error }}
+          </div>
+          {% endif %}
+          {% endif %}
+        </div>
+
+        <div class="content-grid">
+          <div>
+            <form id="uploadForm" class="upload-section">
+              <label class="dropzone" id="dropzone">
+                <input
+                  type="file"
+                  id="fileInput"
+                  accept=".png,.jpg,.jpeg,.bmp,.tiff"
+                />
+                <p style="margin: 0 0 6px; font-size: 14px; color: #4b5563;">
+                  Drag &amp; drop a blood cell image here
+                </p>
+                <p style="margin: 0; font-size: 12px; color: #6b7280;">
+                  or click to browse (.png, .jpg, .jpeg, .bmp, .tiff)
+                </p>
+              </label>
+
+              <div class="preview-wrapper">
+                <img id="previewImg" class="preview-img" alt="Preview" />
+                <div class="file-info" id="fileInfo">No file selected</div>
+              </div>
+
+              <button
+                type="submit"
+                class="primary-btn"
+                id="analyzeBtn"
+                disabled
+              >
+                <span id="btnText">Analyze Blood Cell</span>
+                <div
+                  class="spinner"
+                  id="btnSpinner"
+                  style="display: none;"
+                ></div>
+              </button>
+
+              <div class="error-message" id="errorMessage"></div>
+            </form>
+
+            <div class="results" id="resultsSection">
+              <div
+                class="result-card result-parasitized"
+                id="cardParasitized"
+              >
+                <div class="result-header">
+                  <div class="icon-circle icon-parasitized">!</div>
+                  <div>
+                    <div class="result-title-parasitized">PARASITIZED</div>
+                    <p class="result-subtext">Malaria parasites detected</p>
+                  </div>
+                </div>
+                <div class="confidence-text" id="paraConfidenceText"></div>
+                <div class="disclaimer">
+                  Results must be verified by qualified healthcare professionals.
+                </div>
+              </div>
+
+              <div
+                class="result-card result-uninfected"
+                id="cardUninfected"
+              >
+                <div class="result-header">
+                  <div class="icon-circle icon-uninfected">&#10003;</div>
+                  <div>
+                    <div class="result-title-uninfected">UNINFECTED</div>
+                    <p class="result-subtext">No malaria parasites detected</p>
+                  </div>
+                </div>
+                <div class="confidence-text" id="uninfConfidenceText"></div>
+                <div class="disclaimer">
+                  Results must be verified by qualified healthcare professionals.
+                </div>
+              </div>
+
+              <div class="stats-bar" id="statsBar">
+                <div class="stat-item">
+                  <div class="stat-label">Confidence</div>
+                  <div class="stat-value" id="statConfidence">-</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Processing Time</div>
+                  <div class="stat-value" id="statTime">-</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-label">Image Quality</div>
+                  <div class="stat-value" id="statQuality">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-panel">
+            <div class="info-header">Project context & guidance</div>
+            <div class="tabs">
+              <button
+                type="button"
+                class="tab-btn tab-btn-active"
+                data-tab="overview"
+              >
+                Overview
+              </button>
+              <button type="button" class="tab-btn" data-tab="performance">
+                Model performance
+              </button>
+              <button type="button" class="tab-btn" data-tab="usage">
+                Usage & limits
+              </button>
+            </div>
+
+            <div
+              class="tab-panel tab-panel-active"
+              id="tab-overview"
+            >
+              <p>
+                This tool screens microscopic thin blood smear images for
+                malaria parasites using deep learning models trained on the NIH
+                cell image dataset (Giemsa-stained, PNG format).
+              </p>
+              <div class="tab-section-title">Pipeline</div>
+              <ul class="tab-list">
+                <li>Upload single-cell RGB image of a blood smear.</li>
+                <li>Images are normalized and resized for the best-performing CNN.</li>
+                <li>Model outputs infection status plus confidence estimates.</li>
+              </ul>
+              <div style="margin-top: 6px;">
+                <span class="pill-metric">Binary classes: Parasitized / Uninfected</span>
+                <span class="pill-metric">Input: single RBC patch</span>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="tab-performance">
+              <p>
+                Three architectures were trained for comparison on a balanced
+                subset of the NIH dataset, with the custom CNN selected as the
+                deployment model.
+              </p>
+              <div class="tab-section-title">Target metrics (validation)</div>
+              <ul class="tab-list">
+                <li>
+                  <strong>Custom CNN</strong>: accuracy ≥ 98.99%, ROC-AUC ≥
+                  0.9995 (best model).
+                </li>
+                <li>
+                  <strong>MobileNetV2</strong>: accuracy ≈ 81.31%, ROC-AUC ≈
+                  0.89.
+                </li>
+                <li>
+                  <strong>EfficientNetB0</strong>: accuracy ≈ 50%, ROC-AUC ≈
+                  0.50 (baseline).
+                </li>
+              </ul>
+              <div class="tab-section-title">Model stack</div>
+              <ul class="tab-list">
+                <li>Custom CNN optimized for 64×64 RBC crops.</li>
+                <li>Transfer learning with MobileNetV2 and EfficientNetB0.</li>
+                <li>Best checkpoint exported as <code>malaria_detector_final.h5</code>.</li>
+              </ul>
+            </div>
+
+            <div class="tab-panel" id="tab-usage">
+              <p>
+                This interface is intended for rapid triage and educational
+                demonstration, not as a stand-alone diagnostic system.
+              </p>
+              <div class="tab-section-title">How to use</div>
+              <ul class="tab-list">
+                <li>
+                  Prefer cropped, focused single-cell patches from thin smears.
+                </li>
+                <li>
+                  Avoid over/under-exposed images or heavy compression artifacts.
+                </li>
+                <li>
+                  Use the reported confidence and processing time for quality
+                  control.
+                </li>
+              </ul>
+              <div class="tab-section-title">Clinical caveats</div>
+              <ul class="tab-list">
+                <li>
+                  Predictions must always be reviewed by a qualified
+                  pathologist.
+                </li>
+                <li>
+                  Model is trained on a specific staining protocol (Giemsa)
+                  and may not generalize to all labs.
+                </li>
+                <li>
+                  Best suited for screening and decision support in
+                  resource-limited settings.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const dropzone = document.getElementById("dropzone");
+      const fileInput = document.getElementById("fileInput");
+      const previewImg = document.getElementById("previewImg");
+      const fileInfo = document.getElementById("fileInfo");
+      const uploadForm = document.getElementById("uploadForm");
+      const analyzeBtn = document.getElementById("analyzeBtn");
+      const btnText = document.getElementById("btnText");
+      const btnSpinner = document.getElementById("btnSpinner");
+      const errorMessage = document.getElementById("errorMessage");
+
+      const resultsSection = document.getElementById("resultsSection");
+      const cardParasitized = document.getElementById("cardParasitized");
+      const cardUninfected = document.getElementById("cardUninfected");
+      const paraConfidenceText = document.getElementById("paraConfidenceText");
+      const uninfConfidenceText = document.getElementById("uninfConfidenceText");
+      const statConfidence = document.getElementById("statConfidence");
+      const statTime = document.getElementById("statTime");
+      const statQuality = document.getElementById("statQuality");
+      const tabButtons = document.querySelectorAll(".tab-btn");
+      const tabPanels = document.querySelectorAll(".tab-panel");
+
+      function resetResults() {
+        resultsSection.style.display = "none";
+        cardParasitized.style.display = "none";
+        cardUninfected.style.display = "none";
+        paraConfidenceText.textContent = "";
+        uninfConfidenceText.textContent = "";
+        statConfidence.textContent = "-";
+        statTime.textContent = "-";
+        statQuality.textContent = "-";
+      }
+
+      function setLoading(isLoading) {
+        if (isLoading) {
+          analyzeBtn.disabled = true;
+          btnText.textContent = "Analyzing...";
+          btnSpinner.style.display = "inline-block";
+        } else {
+          analyzeBtn.disabled = !fileInput.files.length;
+          btnText.textContent = "Analyze Blood Cell";
+          btnSpinner.style.display = "none";
+        }
+      }
+
+      function getImageQuality(sizeBytes) {
+        const sizeKB = sizeBytes / 1024;
+        return sizeKB > 10 ? "Excellent" : "Good";
+      }
+
+      dropzone.addEventListener("click", () => fileInput.click());
+
+      dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropzone.classList.add("dragover");
+      });
+
+      dropzone.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+      });
+
+      dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+          fileInput.files = files;
+          handleFileSelection(files[0]);
+        }
+      });
+
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (file) {
+          handleFileSelection(file);
+        }
+      });
+
+      function handleFileSelection(file) {
+        errorMessage.style.display = "none";
+        resetResults();
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewImg.src = e.target.result;
+          previewImg.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+
+        const sizeKB = (file.size / 1024).toFixed(2);
+        fileInfo.textContent = `${file.name} — ${sizeKB} KB`;
+
+        analyzeBtn.disabled = false;
+      }
+
+      uploadForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errorMessage.style.display = "none";
+        resetResults();
+
+        const file = fileInput.files[0];
+        if (!file) {
+          errorMessage.textContent = "Please select an image first.";
+          errorMessage.style.display = "block";
+          return;
+        }
+
+        setLoading(true);
+
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const response = await fetch("/predict", {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.error || "Prediction failed.");
+          }
+
+          const predictedClass = data.predicted_class;
+          const confidence = data.confidence;
+          const paraProb = data.parasitized_probability;
+          const uninfProb = data.uninfected_probability;
+          const processingTime = data.processing_time;
+
+          resultsSection.style.display = "block";
+
+          if (predictedClass === "Parasitized") {
+            cardParasitized.style.display = "block";
+            cardUninfected.style.display = "none";
+            paraConfidenceText.textContent = `Confidence: ${paraProb.toFixed(
+              2
+            )}% (Parasitized)`;
+          } else {
+            cardParasitized.style.display = "none";
+            cardUninfected.style.display = "block";
+            uninfConfidenceText.textContent = `Confidence: ${uninfProb.toFixed(
+              2
+            )}% (Uninfected)`;
+          }
+
+          statConfidence.textContent = `${confidence.toFixed(2)}%`;
+          statTime.textContent = `${processingTime.toFixed(3)} s`;
+          statQuality.textContent = getImageQuality(file.size);
+        } catch (err) {
+          errorMessage.textContent = err.message;
+          errorMessage.style.display = "block";
+        } finally {
+          setLoading(false);
+        }
+      });
+
+      // Simple tab switching logic for the right-hand info panel
+      tabButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.getAttribute("data-tab");
+
+          tabButtons.forEach((b) => b.classList.remove("tab-btn-active"));
+          btn.classList.add("tab-btn-active");
+
+          tabPanels.forEach((panel) => {
+            if (panel.id === `tab-${target}`) {
+              panel.classList.add("tab-panel-active");
+            } else {
+              panel.classList.remove("tab-panel-active");
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+
