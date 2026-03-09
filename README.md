@@ -4,6 +4,8 @@ A deep learning and computer vision project designed to automatically classify c
 
 The project includes scripts for end-to-end processing: down to downloading and preparing the dataset, building and comparing custom CNN architectures against transfer learning models (MobileNetV2, EfficientNetB0), training pipelines, and a Flask-based web interface for real-time model inference.
 
+#[Demo Video](https://drive.google.com/file/d/1djbVmxyH_k95kV2EIDQx65ptFzH05Yu4/view?usp=drive_link)
+
 ## 🗂️ Project Structure
 
 - `app.py`: The entry point for the Flask web application. It serves the trained model (`.h5` files) and exposes a clean user interface and an API endpoint (`/predict`) for classification.
