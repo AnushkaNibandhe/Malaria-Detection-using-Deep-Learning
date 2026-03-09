@@ -4,7 +4,7 @@ A deep learning and computer vision project designed to automatically classify c
 
 The project includes scripts for end-to-end processing: down to downloading and preparing the dataset, building and comparing custom CNN architectures against transfer learning models (MobileNetV2, EfficientNetB0), training pipelines, and a Flask-based web interface for real-time model inference.
 
-# [Demo Video](https://drive.google.com/file/d/1djbVmxyH_k95kV2EIDQx65ptFzH05Yu4/view?usp=drive_link)
+# [Demo Video](https://docs.google.com/videos/d/1PX230dLZmwCP3aBJyGW_zA9zjWJURsGqcrCQj2_R8z4/play)
 # [Documentation](https://drive.google.com/drive/folders/1QzT1_KRyJmSsBV_2CpCDNbD_CDHa41r2?usp=drive_link)
 ## 🗂️ Project Structure
 
